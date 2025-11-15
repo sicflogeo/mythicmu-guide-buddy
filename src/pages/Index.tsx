@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Settings } from "lucide-react";
 
 const Index = () => {
   return (
@@ -12,12 +12,20 @@ const Index = () => {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Embark on an epic adventure in a legendary realm
         </p>
-        <Link to="/guide">
-          <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow">
-            <BookOpen className="mr-2 h-5 w-5" />
-            View Guide
-          </Button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link to="/guide">
+            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow">
+              <BookOpen className="mr-2 h-5 w-5" />
+              View Guide
+            </Button>
+          </Link>
+          <Link to="/admin">
+            <Button size="lg" variant="outline">
+              <Settings className="mr-2 h-5 w-5" />
+              Admin Panel
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

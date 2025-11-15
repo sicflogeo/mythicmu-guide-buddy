@@ -23,12 +23,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { guideCategories } from "@/data/guideContent";
+import { getGuideContent } from "@/utils/guideStorage";
 
 export function CategorySidebar() {
   const { open } = useSidebar();
   const location = useLocation();
   const currentHash = location.hash || "#getting-started-creating-character";
+  const guideCategories = getGuideContent();
   
   // Determine which category contains the current section
   const activeCategory = guideCategories.find(cat => 

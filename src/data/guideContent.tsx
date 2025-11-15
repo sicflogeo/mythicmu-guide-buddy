@@ -1,7 +1,7 @@
 import { BookOpen, Sword, Shield, Map, Sparkles } from "lucide-react";
 import { GuideCategory } from "@/types/guide";
 
-export const guideCategories: GuideCategory[] = [
+export const defaultGuideContent: GuideCategory[] = [
   {
     id: "getting-started",
     title: "Getting Started",
@@ -610,3 +610,5 @@ export const guideCategories: GuideCategory[] = [
     ]
   }
 ];
+
+export const guideCategories = defaultGuideContent;

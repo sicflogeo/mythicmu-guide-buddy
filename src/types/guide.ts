@@ -3,7 +3,8 @@ import { LucideIcon } from "lucide-react";
 export interface GuideSubSection {
   id: string;
   title: string;
-  content: React.ReactNode;
+  description?: string;
+  content: React.ReactNode | string;
 }
 
 export interface GuideCategory {

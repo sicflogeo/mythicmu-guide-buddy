@@ -4,12 +4,13 @@ import { CategorySidebar } from "@/components/CategorySidebar";
 import { GuideSearch } from "@/components/GuideSearch";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { guideCategories } from "@/data/guideContent";
+import { getGuideContent } from "@/utils/guideStorage";
 
 const Guide = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const currentHash = location.hash || "#getting-started-creating-character";
+  const guideCategories = getGuideContent();
 
   // Parse the hash to get category and subsection
   const { categoryId, subSectionId } = useMemo(() => {
@@ -150,7 +151,10 @@ const Guide = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="prose prose-invert max-w-none">
-                    {currentSubSection.content}
+                    {typeof currentSubSection.content === "string" 
+                      ? <div dangerouslySetInnerHTML={{ __html: currentSubSection.content }} />
+                      : currentSubSection.content
+                    }
                   </CardContent>
                 </Card>
               </div>

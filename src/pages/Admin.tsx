@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, LogOut, Save } from "lucide-react";
-import { getGuideContentForEdit, saveGuideContent } from "@/utils/guideStorage";
+import { Plus, Trash2, LogOut, Save, RotateCcw } from "lucide-react";
+import { getGuideContentForEdit, saveGuideContent, resetToDefault } from "@/utils/guideStorage";
 import { toast } from "sonner";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 interface EditableCategory {
   id: string;
@@ -62,6 +63,14 @@ export default function Admin() {
   const handleSave = () => {
     saveGuideContent(categories);
     toast.success("Content saved successfully");
+  };
+
+  const handleReset = () => {
+    if (confirm("Are you sure you want to reset to default content? This cannot be undone.")) {
+      resetToDefault();
+      setCategories(getGuideContentForEdit());
+      toast.success("Content reset to default");
+    }
   };
 
   const addCategory = () => {
@@ -166,6 +175,10 @@ export default function Admin() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-bold text-mythic-gold">Guide Admin Panel</h1>
           <div className="flex gap-2">
+            <Button onClick={handleReset} variant="secondary" className="gap-2">
+              <RotateCcw className="w-4 h-4" />
+              Reset to Default
+            </Button>
             <Button onClick={handleSave} variant="default" className="gap-2">
               <Save className="w-4 h-4" />
               Save Changes
@@ -259,16 +272,27 @@ export default function Admin() {
                           </div>
                         )}
                         <div>
-                          <Label>Content (HTML)</Label>
-                          <Textarea
-                            value={typeof subSection.content === "string" ? subSection.content : ""}
-                            onChange={(e) => updateSubSection(category.id, subSection.id, "content", e.target.value)}
-                            placeholder="Content in HTML format"
-                            rows={10}
-                            className="font-mono text-sm"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Use HTML tags to format content. Note: Complex React components from original content cannot be edited here.
+                          <Label>Content (Rich Text)</Label>
+                          <div className="mt-2">
+                            <ReactQuill
+                              theme="snow"
+                              value={typeof subSection.content === "string" ? subSection.content : ""}
+                              onChange={(value) => updateSubSection(category.id, subSection.id, "content", value)}
+                              modules={{
+                                toolbar: [
+                                  [{ 'header': [1, 2, 3, false] }],
+                                  ['bold', 'italic', 'underline', 'strike'],
+                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                  [{ 'color': [] }, { 'background': [] }],
+                                  ['link', 'image'],
+                                  ['clean']
+                                ]
+                              }}
+                              className="bg-background"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Use the toolbar to format content. You can add images, links, lists, and more.
                           </p>
                         </div>
                       </div>

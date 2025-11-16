@@ -6,10 +6,23 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2, LogOut, Save } from "lucide-react";
-import { GuideCategory, GuideSubSection } from "@/types/guide";
-import { getGuideContent, saveGuideContent } from "@/utils/guideStorage";
-import { BookOpen } from "lucide-react";
+import { getGuideContentForEdit, saveGuideContent } from "@/utils/guideStorage";
 import { toast } from "sonner";
+
+interface EditableCategory {
+  id: string;
+  title: string;
+  iconName: string;
+  description: string;
+  subSections: EditableSubSection[];
+}
+
+interface EditableSubSection {
+  id: string;
+  title: string;
+  description?: string;
+  content: string;
+}
 
 const ADMIN_PIN = "1234567890"; // 10 digit PIN - change this in code
 
@@ -17,13 +30,13 @@ export default function Admin() {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pin, setPin] = useState("");
-  const [categories, setCategories] = useState<GuideCategory[]>([]);
+  const [categories, setCategories] = useState<EditableCategory[]>([]);
 
   useEffect(() => {
     const auth = sessionStorage.getItem("admin_auth");
     if (auth === "true") {
       setIsAuthenticated(true);
-      setCategories(getGuideContent());
+      setCategories(getGuideContentForEdit());
     }
   }, []);
 
@@ -31,7 +44,7 @@ export default function Admin() {
     if (pin === ADMIN_PIN) {
       setIsAuthenticated(true);
       sessionStorage.setItem("admin_auth", "true");
-      setCategories(getGuideContent());
+      setCategories(getGuideContentForEdit());
       toast.success("Logged in successfully");
     } else {
       toast.error("Invalid PIN");
@@ -52,10 +65,10 @@ export default function Admin() {
   };
 
   const addCategory = () => {
-    const newCategory: GuideCategory = {
+    const newCategory: EditableCategory = {
       id: `category-${Date.now()}`,
       title: "New Category",
-      icon: BookOpen,
+      iconName: "BookOpen",
       description: "Category description",
       subSections: []
     };
@@ -68,7 +81,7 @@ export default function Admin() {
 
   const updateCategory = (categoryId: string, field: string, value: string) => {
     setCategories(categories.map(c => 
-      c.id === categoryId && (field === 'title' || field === 'description') 
+      c.id === categoryId && (field === 'title' || field === 'description' || field === 'iconName') 
         ? { ...c, [field]: value } 
         : c
     ));
@@ -103,7 +116,7 @@ export default function Admin() {
     }));
   };
 
-  const updateSubSection = (categoryId: string, subSectionId: string, field: keyof GuideSubSection, value: string) => {
+  const updateSubSection = (categoryId: string, subSectionId: string, field: keyof EditableSubSection, value: string) => {
     setCategories(categories.map(c => {
       if (c.id === categoryId) {
         return {

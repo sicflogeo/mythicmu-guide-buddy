@@ -68,3 +68,7 @@ export const getGuideContentForEdit = (): any[] => {
 export const saveGuideContent = (content: any[]) => {
   localStorage.setItem("guide_content", JSON.stringify(content));
 };
+
+export const resetToDefault = () => {
+  localStorage.removeItem("guide_content");
+};

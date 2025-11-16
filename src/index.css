@@ -64,3 +64,47 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Rich Text Editor Styles */
+.ql-toolbar {
+  @apply bg-muted border-border rounded-t-md;
+}
+
+.ql-container {
+  @apply bg-background border-border rounded-b-md min-h-[300px];
+}
+
+.ql-editor {
+  @apply text-foreground min-h-[300px];
+}
+
+.ql-stroke {
+  @apply stroke-foreground;
+}
+
+.ql-fill {
+  @apply fill-foreground;
+}
+
+.ql-picker-label {
+  @apply text-foreground;
+}
+
+.ql-picker-options {
+  @apply bg-popover border-border;
+}
+
+.ql-toolbar button:hover,
+.ql-toolbar button.ql-active {
+  @apply text-primary;
+}
+
+.ql-toolbar button:hover .ql-stroke,
+.ql-toolbar button.ql-active .ql-stroke {
+  @apply stroke-primary;
+}
+
+.ql-toolbar button:hover .ql-fill,
+.ql-toolbar button.ql-active .ql-fill {
+  @apply fill-primary;
+}

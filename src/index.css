@@ -108,3 +108,50 @@ All colors MUST be HSL.
 .ql-toolbar button.ql-active .ql-fill {
   @apply fill-primary;
 }
+
+/* Colored Box Styles */
+.colored-box {
+  @apply p-4 rounded-lg my-4 border;
+}
+
+.box-red {
+  @apply bg-gradient-to-br from-red-900/20 to-transparent border-red-500/30;
+}
+
+.box-green {
+  @apply bg-gradient-to-br from-green-900/20 to-transparent border-green-500/30;
+}
+
+.box-blue {
+  @apply bg-gradient-to-br from-blue-900/20 to-transparent border-blue-500/30;
+}
+
+.box-yellow {
+  @apply bg-gradient-to-br from-yellow-900/20 to-transparent border-yellow-500/30;
+}
+
+/* Inline Icon Styles */
+.inline-icon {
+  @apply inline-flex items-center justify-center mx-1;
+}
+
+.inline-icon svg {
+  @apply text-primary;
+}
+
+/* Guide Content Styles */
+.prose {
+  @apply text-foreground/80;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  @apply text-primary font-semibold;
+}
+
+.prose ul {
+  @apply space-y-2;
+}
+
+.prose strong {
+  @apply text-primary font-semibold;
+}

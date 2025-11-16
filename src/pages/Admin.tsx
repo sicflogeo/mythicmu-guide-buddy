@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2, LogOut, Save, RotateCcw } from "lucide-react";
 import { getGuideContentForEdit, saveGuideContent, resetToDefault } from "@/utils/guideStorage";
 import { toast } from "sonner";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 interface EditableCategory {
   id: string;
@@ -274,26 +273,11 @@ export default function Admin() {
                         <div>
                           <Label>Content (Rich Text)</Label>
                           <div className="mt-2">
-                            <ReactQuill
-                              theme="snow"
+                            <RichTextEditor
                               value={typeof subSection.content === "string" ? subSection.content : ""}
                               onChange={(value) => updateSubSection(category.id, subSection.id, "content", value)}
-                              modules={{
-                                toolbar: [
-                                  [{ 'header': [1, 2, 3, false] }],
-                                  ['bold', 'italic', 'underline', 'strike'],
-                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                  [{ 'color': [] }, { 'background': [] }],
-                                  ['link', 'image'],
-                                  ['clean']
-                                ]
-                              }}
-                              className="bg-background"
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Use the toolbar to format content. You can add images, links, lists, and more.
-                          </p>
                         </div>
                       </div>
                       <Button

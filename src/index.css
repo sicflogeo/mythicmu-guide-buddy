@@ -132,11 +132,29 @@ All colors MUST be HSL.
 
 /* Inline Icon Styles */
 .inline-icon {
-  @apply inline-flex items-center justify-center mx-1;
+  @apply inline-flex items-center justify-center mx-1 text-xl;
 }
 
 .inline-icon svg {
   @apply text-primary;
+}
+
+/* Custom Table Styles */
+.custom-table {
+  @apply w-full border-collapse my-4 border border-border rounded-lg overflow-hidden;
+}
+
+.custom-table th,
+.custom-table td {
+  @apply p-3 border border-border text-left;
+}
+
+.custom-table th {
+  @apply bg-muted font-semibold text-foreground;
+}
+
+.custom-table tr:nth-child(even) {
+  @apply bg-muted/30;
 }
 
 /* Guide Content Styles */

@@ -11,12 +11,29 @@ const iconMap: { [key: string]: any } = {
   Sparkles
 };
 
+const iconComponentToName = (icon: any): string => {
+  switch (icon) {
+    case BookOpen:
+      return 'BookOpen';
+    case Sword:
+      return 'Sword';
+    case Shield:
+      return 'Shield';
+    case Map:
+      return 'Map';
+    case Sparkles:
+      return 'Sparkles';
+    default:
+      return 'BookOpen';
+  }
+};
+
 // Convert JSX content to HTML string
 const serializeContent = (categories: GuideCategory[]): any[] => {
   return categories.map(cat => ({
     id: cat.id,
     title: cat.title,
-    iconName: cat.icon.name || 'BookOpen',
+    iconName: iconComponentToName(cat.icon),
     description: cat.description,
     subSections: cat.subSections.map(sub => ({
       id: sub.id,

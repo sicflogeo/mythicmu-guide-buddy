@@ -173,3 +173,16 @@ All colors MUST be HSL.
 .prose strong {
   @apply text-primary font-semibold;
 }
+
+/* Two Columns block */
+.two-cols {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 my-4;
+}
+.two-cols .col {
+  @apply p-4 rounded-lg bg-card border border-border;
+}
+
+/* Raw HTML embed wrapper */
+.raw-html-embed {
+  @apply my-4;
+}

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 
 // Register custom formats
 const Block = Quill.import('blots/block');
-
+const BlockEmbed = Quill.import('blots/block/embed');
 class ColoredBoxBlot extends Block {
   static create(value: string) {
     const node = super.create();
@@ -28,6 +28,27 @@ ColoredBoxBlot.tagName = 'div';
 ColoredBoxBlot.className = 'colored-box';
 
 Quill.register(ColoredBoxBlot);
+
+class RawHtmlBlot extends BlockEmbed {
+  static create(value: string) {
+    const node: HTMLElement = super.create() as HTMLElement;
+    node.setAttribute('data-raw-html', encodeURIComponent(value));
+    node.classList.add('raw-html-embed');
+    node.innerHTML = value;
+    return node;
+  }
+
+  static value(node: HTMLElement) {
+    const attr = node.getAttribute('data-raw-html');
+    return attr ? decodeURIComponent(attr) : node.innerHTML;
+  }
+}
+
+(RawHtmlBlot as any).blotName = 'rawHtml';
+(RawHtmlBlot as any).tagName = 'div';
+(RawHtmlBlot as any).className = 'raw-html-embed';
+
+Quill.register(RawHtmlBlot);
 
 interface RichTextEditorProps {
   value: string;
@@ -88,15 +109,33 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     const quill = quillRef.current?.getEditor();
     if (!quill || !htmlCode.trim()) return;
 
-    const range = quill.getSelection();
-    if (range) {
-      quill.clipboard.dangerouslyPasteHTML(range.index, htmlCode);
-      quill.setSelection(range.index + 1, 0);
-    }
+    const range = quill.getSelection() || { index: quill.getLength(), length: 0 } as any;
+    quill.insertEmbed(range.index, 'rawHtml', htmlCode, 'user');
+    quill.setSelection((range.index || 0) + 1, 0);
+
     setHtmlCode("");
     setShowHtmlDialog(false);
   };
 
+  const insertTwoColumns = () => {
+    const quill = quillRef.current?.getEditor();
+    if (!quill) return;
+
+    const colsHtml = `
+      <div class="two-cols">
+        <div class="col">
+          <p>Column 1</p>
+        </div>
+        <div class="col">
+          <p>Column 2</p>
+        </div>
+      </div>
+    `;
+
+    const range = quill.getSelection() || { index: quill.getLength(), length: 0 } as any;
+    quill.insertEmbed(range.index, 'rawHtml', colsHtml.trim(), 'user');
+    quill.setSelection((range.index || 0) + 1, 0);
+  };
   const insertTable = () => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
@@ -111,18 +150,16 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     }
     tableHtml += '</tbody></table>';
 
-    const range = quill.getSelection();
-    if (range) {
-      quill.clipboard.dangerouslyPasteHTML(range.index, tableHtml);
-      quill.setSelection(range.index + 1, 0);
-    }
+  const range = quill.getSelection() || { index: quill.getLength(), length: 0 } as any;
+    quill.insertEmbed(range.index, 'rawHtml', tableHtml, 'user');
+    quill.setSelection((range.index || 0) + 1, 0);
     setShowTableDialog(false);
   };
 
   const formats = [
     'header', 'bold', 'italic', 'underline', 'strike',
     'color', 'background', 'list', 'bullet', 'align',
-    'link', 'image', 'coloredBox', 'class', 'style'
+    'link', 'image', 'coloredBox', 'rawHtml', 'class', 'style'
   ];
 
   const modules = useMemo(() => ({
@@ -167,6 +204,12 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           className="px-3 py-1.5 text-xs rounded bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/30 transition"
         >
           Yellow Box
+        </button>
+        <button
+          onClick={insertTwoColumns}
+          className="px-3 py-1.5 text-xs rounded border border-border hover:bg-accent transition"
+        >
+          2 Columns
         </button>
 
         <Dialog open={showIconPicker} onOpenChange={setShowIconPicker}>

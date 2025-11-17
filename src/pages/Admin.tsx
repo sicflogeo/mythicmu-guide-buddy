@@ -170,56 +170,58 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-mythic-gold/20 p-4 sticky top-0 bg-background/95 backdrop-blur z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-mythic-gold">Guide Admin Panel</h1>
+      <header className="border-b border-mythic-gold/20 p-3 sticky top-0 bg-background/95 backdrop-blur z-10">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <h1 className="text-xl font-bold text-mythic-gold">Admin Panel</h1>
           <div className="flex gap-2">
-            <Button onClick={handleReset} variant="secondary" className="gap-2">
-              <RotateCcw className="w-4 h-4" />
-              Reset to Default
+            <Button onClick={handleReset} variant="secondary" size="sm" className="gap-2">
+              <RotateCcw className="w-3 h-3" />
+              Reset
             </Button>
-            <Button onClick={handleSave} variant="default" className="gap-2">
-              <Save className="w-4 h-4" />
-              Save Changes
+            <Button onClick={handleSave} variant="default" size="sm" className="gap-2">
+              <Save className="w-3 h-3" />
+              Save
             </Button>
-            <Button onClick={handleLogout} variant="outline" className="gap-2">
-              <LogOut className="w-4 h-4" />
+            <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2">
+              <LogOut className="w-3 h-3" />
               Logout
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 space-y-4">
+      <main className="max-w-6xl mx-auto p-3 space-y-3">
         <div className="flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            Manage your guide content. Changes are saved to browser storage. Note: Icons cannot be edited here.
+          <p className="text-xs text-muted-foreground">
+            Manage guide content • Saved to browser storage
           </p>
-          <Button onClick={addCategory} variant="default" className="gap-2">
-            <Plus className="w-4 h-4" />
+          <Button onClick={addCategory} variant="default" size="sm" className="gap-2">
+            <Plus className="w-3 h-3" />
             Add Category
           </Button>
         </div>
 
         {categories.map((category) => (
           <Card key={category.id} className="border-mythic-gold/20">
-            <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 space-y-4">
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 space-y-3">
                   <div>
-                    <Label>Category Title</Label>
+                    <Label className="text-xs">Category Title</Label>
                     <Input
                       value={category.title}
                       onChange={(e) => updateCategory(category.id, "title", e.target.value)}
                       placeholder="Category name"
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label>Category Description</Label>
+                    <Label className="text-xs">Category Description</Label>
                     <Input
                       value={category.description}
                       onChange={(e) => updateCategory(category.id, "description", e.target.value)}
                       placeholder="Category description"
+                      className="mt-1"
                     />
                   </div>
                 </div>
@@ -227,52 +229,55 @@ export default function Admin() {
                   onClick={() => deleteCategory(category.id)}
                   variant="destructive"
                   size="icon"
+                  className="h-8 w-8"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label>Sub-sections ({category.subSections.length})</Label>
+                <Label className="text-xs">Sub-sections ({category.subSections.length})</Label>
                 <Button
                   onClick={() => addSubSection(category.id)}
                   variant="outline"
                   size="sm"
-                  className="gap-2"
+                  className="gap-2 h-7 text-xs"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3 h-3" />
                   Add Sub-section
                 </Button>
               </div>
 
               {category.subSections.map((subSection) => (
                 <Card key={subSection.id} className="border-muted">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-4">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 space-y-3">
                         <div>
-                          <Label>Sub-section Title</Label>
+                          <Label className="text-xs">Sub-section Title</Label>
                           <Input
                             value={subSection.title}
                             onChange={(e) => updateSubSection(category.id, subSection.id, "title", e.target.value)}
                             placeholder="Sub-section title"
+                            className="mt-1"
                           />
                         </div>
                         {subSection.description !== undefined && (
                           <div>
-                            <Label>Description (optional)</Label>
+                            <Label className="text-xs">Description (optional)</Label>
                             <Input
                               value={subSection.description || ""}
                               onChange={(e) => updateSubSection(category.id, subSection.id, "description", e.target.value)}
                               placeholder="Brief description"
+                              className="mt-1"
                             />
                           </div>
                         )}
                         <div>
-                          <Label>Content (Rich Text)</Label>
-                          <div className="mt-2">
+                          <Label className="text-xs">Content</Label>
+                          <div className="mt-1">
                             <RichTextEditor
                               value={typeof subSection.content === "string" ? subSection.content : ""}
                               onChange={(value) => updateSubSection(category.id, subSection.id, "content", value)}
@@ -284,8 +289,9 @@ export default function Admin() {
                         onClick={() => deleteSubSection(category.id, subSection.id)}
                         variant="destructive"
                         size="icon"
+                        className="h-8 w-8"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3" />
                       </Button>
                     </div>
                   </CardHeader>

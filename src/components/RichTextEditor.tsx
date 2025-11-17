@@ -66,8 +66,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
     const range = quill.getSelection();
     if (range) {
-      const delta = quill.clipboard.convert(html);
-      quill.updateContents({ ops: [{ retain: range.index }, ...delta.ops] } as any);
+      quill.clipboard.dangerouslyPasteHTML(range.index, html);
       quill.setSelection(range.index + 1, 0);
     }
     setShowIconPicker(false);
@@ -91,8 +90,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
     const range = quill.getSelection();
     if (range) {
-      const delta = quill.clipboard.convert(htmlCode);
-      quill.updateContents({ ops: [{ retain: range.index }, ...delta.ops] } as any);
+      quill.clipboard.dangerouslyPasteHTML(range.index, htmlCode);
       quill.setSelection(range.index + 1, 0);
     }
     setHtmlCode("");
@@ -115,12 +113,17 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
     const range = quill.getSelection();
     if (range) {
-      const delta = quill.clipboard.convert(tableHtml);
-      quill.updateContents({ ops: [{ retain: range.index }, ...delta.ops] } as any);
+      quill.clipboard.dangerouslyPasteHTML(range.index, tableHtml);
       quill.setSelection(range.index + 1, 0);
     }
     setShowTableDialog(false);
   };
+
+  const formats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'color', 'background', 'list', 'bullet', 'align',
+    'link', 'image', 'coloredBox', 'class', 'style'
+  ];
 
   const modules = useMemo(() => ({
     toolbar: [
@@ -133,7 +136,8 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       ['clean']
     ],
     clipboard: {
-      matchVisual: false
+      matchVisual: false,
+      matchers: []
     }
   }), []);
 
@@ -265,6 +269,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         value={value}
         onChange={onChange}
         modules={modules}
+        formats={formats}
         className="bg-background min-h-[300px]"
       />
     </div>

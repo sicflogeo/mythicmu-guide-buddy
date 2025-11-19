@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { Sword, Shield, Sparkles, Star, Zap, Heart, Crown, Gem, Code, Grid3x3 } from "lucide-react";
+import { Sparkles, Code, Grid3x3, Upload, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -60,9 +60,26 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const [htmlCode, setHtmlCode] = useState("");
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
+  const [customBoxColor, setCustomBoxColor] = useState("#3b82f6");
   const [showHtmlDialog, setShowHtmlDialog] = useState(false);
   const [showTableDialog, setShowTableDialog] = useState(false);
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const quill = quillRef.current?.getEditor();
+    if (quill && value) {
+      const currentContent = quill.root.innerHTML;
+      if (currentContent !== value) {
+        const selection = quill.getSelection();
+        quill.root.innerHTML = value;
+        if (selection) {
+          quill.setSelection(selection);
+        }
+      }
+    }
+  }, [value]);
 
   const iconsList = [
     { name: 'sword', symbol: '⚔️', html: '<span class="inline-icon">⚔️</span>' },
@@ -97,12 +114,47 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
 
-    const range = quill.getSelection();
-    if (range) {
-      quill.insertText(range.index, '\n', 'user');
-      quill.formatLine(range.index + 1, 1, 'coloredBox', color);
-      quill.setSelection(range.index + 1, 0);
-    }
+    const boxHtml = `<div class="colored-box box-${color}" data-box-color="${color}"><p>Type your content here...</p></div>`;
+    const range = quill.getSelection() || { index: quill.getLength(), length: 0 } as any;
+    quill.insertEmbed(range.index, 'rawHtml', boxHtml, 'user');
+    quill.setSelection((range.index || 0) + 1, 0);
+  };
+
+  const insertCustomColorBox = () => {
+    const quill = quillRef.current?.getEditor();
+    if (!quill) return;
+
+    const boxHtml = `<div class="colored-box" style="background-color: ${customBoxColor}20; border-color: ${customBoxColor}50;"><p style="color: ${customBoxColor};">Type your content here...</p></div>`;
+    const range = quill.getSelection() || { index: quill.getLength(), length: 0 } as any;
+    quill.insertEmbed(range.index, 'rawHtml', boxHtml, 'user');
+    quill.setSelection((range.index || 0) + 1, 0);
+    setShowColorPicker(false);
+  };
+
+  const handleImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const quill = quillRef.current?.getEditor();
+      if (!quill) return;
+
+      const range = quill.getSelection() || { index: quill.getLength(), length: 0 } as any;
+      const result = reader.result as string;
+      
+      if (file.type.startsWith('image/')) {
+        quill.insertEmbed(range.index, 'image', result, 'user');
+      } else if (file.type.startsWith('video/')) {
+        quill.insertEmbed(range.index, 'video', result, 'user');
+      }
+      quill.setSelection((range.index || 0) + 1, 0);
+    };
+    reader.readAsDataURL(file);
   };
 
   const insertCustomHtml = () => {
@@ -157,19 +209,22 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   };
 
   const formats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
+    'header', 'font', 'size', 'bold', 'italic', 'underline', 'strike',
     'color', 'background', 'list', 'bullet', 'align',
-    'link', 'image', 'coloredBox', 'rawHtml', 'class', 'style'
+    'link', 'image', 'video', 'coloredBox', 'rawHtml', 'class', 'style'
   ];
 
   const modules = useMemo(() => ({
     toolbar: [
-      [{ 'header': [1, 2, 3, 4, false] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'font': ['serif', 'monospace', 'sans-serif'] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': ['#ef4444', '#22c55e', '#3b82f6', '#eab308', '#a855f7', '#f97316'] }],
+      [{ 'color': ['#000000', '#ffffff', '#ef4444', '#22c55e', '#3b82f6', '#eab308', '#a855f7', '#f97316', '#06b6d4', '#ec4899'] }],
+      [{ 'background': ['#ffffff', '#f3f4f6', '#fef2f2', '#f0fdf4', '#eff6ff', '#fefce8', '#faf5ff', '#fff7ed'] }],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'align': [] }],
-      ['link', 'image'],
+      ['link', 'image', 'video'],
       ['clean']
     ],
     clipboard: {
@@ -180,6 +235,14 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
   return (
     <div className="space-y-3">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => insertColoredBox('red')}
@@ -205,12 +268,46 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         >
           Yellow Box
         </button>
+
+        <Dialog open={showColorPicker} onOpenChange={setShowColorPicker}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Palette className="w-4 h-4" />
+              Custom Box
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Custom Colored Box</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label>Box Color</Label>
+                <Input
+                  type="color"
+                  value={customBoxColor}
+                  onChange={(e) => setCustomBoxColor(e.target.value)}
+                  className="h-12 w-full"
+                />
+              </div>
+              <Button onClick={insertCustomColorBox} className="w-full">
+                Insert Custom Box
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <button
           onClick={insertTwoColumns}
           className="px-3 py-1.5 text-xs rounded border border-border hover:bg-accent transition"
         >
           2 Columns
         </button>
+
+        <Button variant="outline" size="sm" className="gap-2" onClick={handleImageUpload}>
+          <Upload className="w-4 h-4" />
+          Upload Media
+        </Button>
 
         <Dialog open={showIconPicker} onOpenChange={setShowIconPicker}>
           <DialogTrigger asChild>

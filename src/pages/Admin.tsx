@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Plus, Trash2, LogOut, Save, RotateCcw } from "lucide-react";
 import { getGuideContentForEdit, saveGuideContent, resetToDefault } from "@/utils/guideStorage";
 import { toast } from "sonner";
@@ -170,19 +171,19 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-mythic-gold/20 p-3 sticky top-0 bg-background/95 backdrop-blur z-10">
+      <header className="border-b border-border p-4 sticky top-0 bg-background/95 backdrop-blur z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold text-mythic-gold">Admin Panel</h1>
+          <h1 className="text-2xl font-bold">Admin Panel</h1>
           <div className="flex gap-2">
-            <Button onClick={handleReset} variant="secondary" size="sm" className="gap-2">
+            <Button onClick={handleReset} variant="outline" size="sm" className="gap-1">
               <RotateCcw className="w-3 h-3" />
               Reset
             </Button>
-            <Button onClick={handleSave} variant="default" size="sm" className="gap-2">
+            <Button onClick={handleSave} size="sm" className="gap-1">
               <Save className="w-3 h-3" />
               Save
             </Button>
-            <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2">
+            <Button onClick={handleLogout} variant="outline" size="sm" className="gap-1">
               <LogOut className="w-3 h-3" />
               Logout
             </Button>
@@ -190,116 +191,130 @@ export default function Admin() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-3 space-y-3">
+      <main className="max-w-6xl mx-auto p-4 space-y-4">
         <div className="flex justify-between items-center">
-          <p className="text-xs text-muted-foreground">
-            Manage guide content • Saved to browser storage
+          <p className="text-sm text-muted-foreground">
+            Manage guide content • {categories.length} categories
           </p>
-          <Button onClick={addCategory} variant="default" size="sm" className="gap-2">
+          <Button onClick={addCategory} size="sm" className="gap-1">
             <Plus className="w-3 h-3" />
             Add Category
           </Button>
         </div>
 
-        {categories.map((category) => (
-          <Card key={category.id} className="border-mythic-gold/20">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 space-y-3">
+        <Accordion type="single" collapsible className="w-full space-y-2">
+          {categories.map((category) => (
+            <AccordionItem key={category.id} value={category.id} className="border rounded-lg px-4 bg-card">
+              <AccordionTrigger className="hover:no-underline py-4">
+                <div className="flex items-center justify-between w-full pr-4">
+                  <span className="text-lg font-semibold">{category.title}</span>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteCategory(category.id);
+                    }}
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4 pb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">Category Title</Label>
                     <Input
                       value={category.title}
-                      onChange={(e) => updateCategory(category.id, "title", e.target.value)}
-                      placeholder="Category name"
+                      onChange={(e) => updateCategory(category.id, 'title', e.target.value)}
                       className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">Category Description</Label>
+                    <Label className="text-xs">Icon Name</Label>
+                    <Input
+                      value={category.iconName}
+                      onChange={(e) => updateCategory(category.id, 'iconName', e.target.value)}
+                      className="mt-1"
+                      placeholder="BookOpen, Sword, Shield, Map, Sparkles"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="text-xs">Description</Label>
                     <Input
                       value={category.description}
-                      onChange={(e) => updateCategory(category.id, "description", e.target.value)}
-                      placeholder="Category description"
+                      onChange={(e) => updateCategory(category.id, 'description', e.target.value)}
                       className="mt-1"
                     />
                   </div>
                 </div>
-                <Button
-                  onClick={() => deleteCategory(category.id)}
-                  variant="destructive"
-                  size="icon"
-                  className="h-8 w-8"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
-            </CardHeader>
 
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center">
-                <Label className="text-xs">Sub-sections ({category.subSections.length})</Label>
-                <Button
-                  onClick={() => addSubSection(category.id)}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 h-7 text-xs"
-                >
-                  <Plus className="w-3 h-3" />
-                  Add Sub-section
-                </Button>
-              </div>
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <Label className="text-sm font-medium">Sub-sections ({category.subSections.length})</Label>
+                    <Button 
+                      onClick={() => addSubSection(category.id)} 
+                      size="sm"
+                      variant="outline"
+                    >
+                      <Plus className="w-3 h-3 mr-1" />
+                      Add Sub-section
+                    </Button>
+                  </div>
 
-              {category.subSections.map((subSection) => (
-                <Card key={subSection.id} className="border-muted">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 space-y-3">
-                        <div>
-                          <Label className="text-xs">Sub-section Title</Label>
-                          <Input
-                            value={subSection.title}
-                            onChange={(e) => updateSubSection(category.id, subSection.id, "title", e.target.value)}
-                            placeholder="Sub-section title"
-                            className="mt-1"
-                          />
-                        </div>
-                        {subSection.description !== undefined && (
+                  <Accordion type="single" collapsible className="w-full space-y-2">
+                    {category.subSections.map((subSection) => (
+                      <AccordionItem key={subSection.id} value={subSection.id} className="border rounded-lg px-3 bg-muted/30">
+                        <AccordionTrigger className="hover:no-underline text-sm py-3">
+                          <div className="flex items-center justify-between w-full pr-2">
+                            <span className="font-medium">{subSection.title}</span>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteSubSection(category.id, subSection.id);
+                              }}
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-3 pt-2 pb-4">
                           <div>
-                            <Label className="text-xs">Description (optional)</Label>
+                            <Label className="text-xs">Title</Label>
                             <Input
-                              value={subSection.description || ""}
-                              onChange={(e) => updateSubSection(category.id, subSection.id, "description", e.target.value)}
-                              placeholder="Brief description"
+                              value={subSection.title}
+                              onChange={(e) => updateSubSection(category.id, subSection.id, 'title', e.target.value)}
                               className="mt-1"
                             />
                           </div>
-                        )}
-                        <div>
-                          <Label className="text-xs">Content</Label>
-                          <div className="mt-1">
-                            <RichTextEditor
-                              value={typeof subSection.content === "string" ? subSection.content : ""}
-                              onChange={(value) => updateSubSection(category.id, subSection.id, "content", value)}
+                          <div>
+                            <Label className="text-xs">Description</Label>
+                            <Input
+                              value={subSection.description || ''}
+                              onChange={(e) => updateSubSection(category.id, subSection.id, 'description', e.target.value)}
+                              className="mt-1"
                             />
                           </div>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => deleteSubSection(category.id, subSection.id)}
-                        variant="destructive"
-                        size="icon"
-                        className="h-8 w-8"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
+                          <div>
+                            <Label className="text-xs mb-2 block">Content</Label>
+                            <RichTextEditor
+                              value={subSection.content}
+                              onChange={(content) => updateSubSection(category.id, subSection.id, 'content', content)}
+                            />
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </main>
     </div>
   );

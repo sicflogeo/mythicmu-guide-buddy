@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Plus, Trash2, LogOut, Save, RotateCcw } from "lucide-react";
 import { getBlockGuideContent, saveBlockGuideContent, resetBlockGuideContent } from "@/utils/blockStorage";
@@ -11,19 +11,31 @@ import { BlockEditor } from "@/components/BlockEditor";
 import { BlockGuideCategory, Block } from "@/types/block";
 
 export default function Admin() {
-  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
   const [categories, setCategories] = useState<BlockGuideCategory[]>([]);
 
   useEffect(() => {
-    const password = localStorage.getItem('admin-password');
-    if (!password || password !== 'mythic123') {
-      navigate('/admin');
-      return;
+    const savedPassword = localStorage.getItem('admin-password');
+    if (savedPassword === 'mythic123') {
+      setIsAuthenticated(true);
+      const content = getBlockGuideContent();
+      setCategories(content);
     }
+  }, []);
 
-    const content = getBlockGuideContent();
-    setCategories(content);
-  }, [navigate]);
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'mythic123') {
+      localStorage.setItem('admin-password', password);
+      setIsAuthenticated(true);
+      const content = getBlockGuideContent();
+      setCategories(content);
+      toast.success('Logged in!');
+    } else {
+      toast.error('Invalid password');
+    }
+  };
 
   const handleSave = () => {
     saveBlockGuideContent(categories);
@@ -39,7 +51,8 @@ export default function Admin() {
 
   const handleLogout = () => {
     localStorage.removeItem('admin-password');
-    navigate('/admin');
+    setIsAuthenticated(false);
+    setCategories([]);
   };
 
   const addCategory = () => {
@@ -105,15 +118,41 @@ export default function Admin() {
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Admin Login</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <Label>Password</Label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter admin password"
+                />
+              </div>
+              <Button type="submit" className="w-full">Login</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b p-4 sticky top-0 bg-background/95 backdrop-blur z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-bold">Block Editor Admin</h1>
           <div className="flex gap-2">
-            <Button onClick={handleReset} variant="outline" size="sm"><RotateCcw className="w-3 h-3" />Reset</Button>
-            <Button onClick={handleSave} size="sm"><Save className="w-3 h-3" />Save</Button>
-            <Button onClick={handleLogout} variant="outline" size="sm"><LogOut className="w-3 h-3" />Logout</Button>
+            <Button onClick={handleReset} variant="outline" size="sm"><RotateCcw className="w-3 h-3 mr-1" />Reset</Button>
+            <Button onClick={handleSave} size="sm"><Save className="w-3 h-3 mr-1" />Save</Button>
+            <Button onClick={handleLogout} variant="outline" size="sm"><LogOut className="w-3 h-3 mr-1" />Logout</Button>
           </div>
         </div>
       </header>

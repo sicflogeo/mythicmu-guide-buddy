@@ -4,15 +4,29 @@ import { ReactElement } from "react";
 
 // Migration utility to convert old JSX content to block format
 export function migrateGuideContent(oldCategories: GuideCategory[]): BlockGuideCategory[] {
-  return oldCategories.map(category => ({
-    id: category.id,
-    title: category.title,
-    iconName: category.icon.name || 'BookOpen',
-    description: category.description,
-    subSections: category.subSections.map(subSection => 
-      migrateSubSection(subSection)
-    ),
-  }));
+  return oldCategories.map(category => {
+    // Extract icon name from icon component
+    let iconName = 'BookOpen';
+    if (category.icon) {
+      if (typeof category.icon === 'string') {
+        iconName = category.icon;
+      } else if (category.icon.name) {
+        iconName = category.icon.name;
+      } else if (category.icon.displayName) {
+        iconName = category.icon.displayName;
+      }
+    }
+    
+    return {
+      id: category.id,
+      title: category.title,
+      iconName,
+      description: category.description,
+      subSections: category.subSections.map(subSection => 
+        migrateSubSection(subSection)
+      ),
+    };
+  });
 }
 
 function migrateSubSection(subSection: any): BlockGuideSubSection {

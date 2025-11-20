@@ -1,6 +1,7 @@
 import { BlockGuideCategory } from "@/types/block";
 import { getGuideContent } from "./guideStorage";
 import { migrateGuideContent } from "./blockMigration";
+import { defaultBlockContent } from "@/data/defaultBlockContent";
 
 const STORAGE_KEY = 'mythicmu-block-guides';
 const MIGRATION_FLAG = 'mythicmu-migrated-to-blocks';
@@ -11,28 +12,33 @@ export function getBlockGuideContent(): BlockGuideCategory[] {
   
   if (!migrated) {
     // Perform migration from old format
-    const oldContent = getGuideContent();
-    const migratedContent = migrateGuideContent(oldContent);
-    saveBlockGuideContent(migratedContent);
-    localStorage.setItem(MIGRATION_FLAG, 'true');
-    return migratedContent;
+    try {
+      const oldContent = getGuideContent();
+      const migratedContent = migrateGuideContent(oldContent);
+      saveBlockGuideContent(migratedContent);
+      localStorage.setItem(MIGRATION_FLAG, 'true');
+      console.log('Migration successful:', migratedContent);
+      return migratedContent;
+    } catch (error) {
+      console.error('Migration failed:', error);
+      return defaultBlockContent;
+    }
   }
   
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      console.log('Loaded from storage:', parsed);
+      return parsed;
     } catch (error) {
       console.error('Failed to parse block guide content:', error);
+      return defaultBlockContent;
     }
   }
   
-  // Fallback: perform migration
-  const oldContent = getGuideContent();
-  const migratedContent = migrateGuideContent(oldContent);
-  saveBlockGuideContent(migratedContent);
-  localStorage.setItem(MIGRATION_FLAG, 'true');
-  return migratedContent;
+  // Fallback: use default content
+  return defaultBlockContent;
 }
 
 export function saveBlockGuideContent(content: BlockGuideCategory[]): void {

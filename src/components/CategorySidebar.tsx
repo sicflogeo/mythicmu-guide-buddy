@@ -23,18 +23,20 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { getGuideContent } from "@/utils/guideStorage";
-import { GuideCategory } from "@/types/guide";
+import { getBlockGuideContent } from "@/utils/blockStorage";
 
 interface CategorySidebarProps {
-  categories?: GuideCategory[];
+  categories?: any[];
 }
 
 export function CategorySidebar({ categories }: CategorySidebarProps = {}) {
   const { open } = useSidebar();
   const location = useLocation();
   const currentHash = location.hash || "#getting-started-creating-character";
-  const guideCategories = categories || getGuideContent();
+  const guideCategories = categories || getBlockGuideContent().map(cat => ({
+    ...cat,
+    icon: require("lucide-react")[cat.iconName] || require("lucide-react").BookOpen
+  }));
   
   // Determine which category contains the current section
   const activeCategory = guideCategories.find(cat => 

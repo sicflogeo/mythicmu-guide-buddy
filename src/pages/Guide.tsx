@@ -74,7 +74,7 @@ export default function Guide() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-dark">
-        <CategorySidebar />
+        <CategorySidebar categories={sidebarCategories} />
         
         <main className="flex-1">
           {/* Hero Section with Search */}
